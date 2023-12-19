@@ -3,9 +3,15 @@ import axios from "axios";
 function App() {
   const [message, setMessage] = useState("");
   const hello = async () => {
-    axios.get(import.meta.env.VITE_SERVER_URL).then((response) => {
-      setMessage(response.data);
-    });
+    axios
+      .get(import.meta.env.VITE_SERVER_URL, {
+        headers: {
+          "ngrok-skip-browser-warning": "skip",
+        },
+      })
+      .then((response) => {
+        setMessage(response.data);
+      });
   };
   return (
     <>
