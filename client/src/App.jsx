@@ -1,35 +1,28 @@
-import { useState } from "react";
-import axios from "axios";
-import osLogo from "../assets/open-source-logo.png";
+import { useState, useEffect } from "react";
+
 function App() {
-	const [message, setMessage] = useState("");
-	const hello = async () => {
-		axios
-			.get(import.meta.env.VITE_SERVER_URL, {
-				headers: {
-					"ngrok-skip-browser-warning": "skip",
-				},
-			})
-			.then((response) => {
-				setMessage(response.data);
-			});
-	};
-	return (
-		<>
-			<div className="transition-all  duration-500 bg-[#212121] h-[100vh] w-full text-white flex flex-col-reverse lg:flex-row min-w-[412px] min-h-[512px] lg:min-h-0">
-				<div className="h-1/4 lg:h-full w-full lg:w-1/2 flex justify-center items-center">
-					<img
-						src={osLogo}
-						alt="logo"
-						className="transition-all  duration-[2s] h-full lg:h-1/2 rotate-[-90deg] lg:rotate-0 "
-					/>
-				</div>
-				<div className="text-6xl font-bold h-3/4 lg:h-full w-full lg:w-1/2 p-24 overflow-hidden">
-					Open-Source Community
-				</div>
-			</div>
-		</>
-	);
+  const [input, setInput] = useState(
+    "hello this is long text to see how the line wraps in a linux terminal"
+  );
+	const handleChange = (e) =>{
+		setInput(e.target.value)
+	}
+
+  return (
+    <>
+      <div className="text-xl no-select font-bold w-full h-[100vh] bg-gray-800 text-white overflow-scroll pt-5">
+        <div className="flex">
+          <span className="text-green-500">guest@localhost</span>
+          <span>:</span>
+          <span className="text-blue-600">~</span>
+          <span>$</span>
+          <div className="pl-2 whitespace-pre-wrap font-normal font-mono">{input}</div>
+		  <input type="text" className="bg-transparent border border-solid border-white focus:bg-white w-4 h-6 focus:outline-none text-transparent" onChange={handleChange} />
+        </div>
+      </div>
+	  
+    </>
+  );
 }
 
 export default App;
