@@ -9,14 +9,13 @@ export default function NavBar() {
     setOpen(!open);
   };
   return (
-    <nav className={`w-full flex flex-wrap justify-around items-center bg-[#f2e9e4] px-5 select-none`}>
-      <div className="w-1/2 md:w-1/4 flex justify-start items-center text-xl font-bold order-1 p-2">
+    <nav
+      className={`w-full flex flex-wrap justify-around items-center bg-[#f2e9e4] px-5 select-none`}
+    >
+      <div className="w-1/2 md:w-1/4 h-16 flex justify-start items-center order-1 p-2">
         <img className="w-12 cursor-pointer" src={logo} alt="logo" />
       </div>
-      <div
-        onClick={() => toggle()}
-        className="w-1/2 md:w-1/4 flex justify-end items-center order-2 md:order-3"
-      >
+      <div className="w-1/2 md:w-1/4 h-16 flex justify-end items-center order-2 md:order-3">
         <Bars3Icon
           className={`${
             open ? "rotate-180" : ""
@@ -27,7 +26,7 @@ export default function NavBar() {
       </div>
 
       <div
-        className={`w-full md:w-1/2 col-span-2 row-span-3 md:col-span-2 border-purple-900 flex flex-col md:flex-row justify-center items-center gap-5 uppercase font-bold text-xs md:text-lg overflow-hidden transition-all md:transition-none duration-500 order-3 md:order-2 md:h-16 ${
+        className={`w-full md:w-1/2 flex flex-col md:flex-row justify-center items-center gap-5 uppercase font-bold text-sm md:text-md overflow-hidden transition-all md:transition-none duration-1000 order-3 md:order-2 md:h-16 md:p-0 ${
           open ? "h-56 p-5" : "h-0"
         }`}
       >
