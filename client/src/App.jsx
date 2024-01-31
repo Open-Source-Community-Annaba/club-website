@@ -1,50 +1,73 @@
-import { useState } from "react";
-import axios from 'axios'
+import { useEffect, useState } from "react";
+import axios from "axios";
 import logo from "../assets/logo-with-title.svg";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { CheckIcon, XMarkIcon, ArrowPathIcon } from "@heroicons/react/24/solid";
+import io from "socket.io-client";
+
 export default function App() {
-  const listStudents = [
-    { id: 1, name: "khalil cheddadi", zone: 1, checked: false },
-    { id: 2, name: "achref benammrane", zone: 1, checked: false },
-    { id: 3, name: "bougerra takoua", zone: 2, checked: false },
-    { id: 4, name: "anis slougha", zone: 3, checked: false },
-    { id: 5, name: "berouk abderahmane", zone: 1, checked: false },
-    { id: 6, name: "chiheb menkoucha", zone: 1, checked: false },
-  ];
   const [value, updateValue] = useState("");
-  const [list, updateList] = useState(listStudents);
+  const [list, updateList] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+
+  useEffect(() => {
+    getList();
+  }, []);
+
+  useEffect(() => {
+    const newFiltered = list
+      .sort((a, b) => a.zone - b.zone)
+      .filter((item) => item.name.toLowerCase().includes(value.toLowerCase()));
+    setFiltered(newFiltered);
+  }, [list, value]);
+
+  const getList = () => {
+    axios
+      .get(`https://j-mena-check-server.onrender.com/list`, {})
+      .then((response) => {
+        const sortedList = response.data.sort((a, b) => a.zone - b.zone);
+        updateList(sortedList);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   const handleCheckboxChange = (id) => {
     const updatedStudents = [...list];
-    fetchit(id)
-    for (var i = 0; i < updatedStudents.length; i++) {
-      if (updatedStudents[i].id == id) {
-        updatedStudents[i].checked = !updatedStudents[i].checked;
-        break;
-      }
-    }
+    fetchit(id);
 
     updateList(updatedStudents);
   };
 
-
   const fetchit = (id) => {
-    console.log('here')
-    axios.get(`http://localhost:8000/update/${id}`, {})
-    .then(response => {
-      console.log('Response:', response.data);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-  }
+    const waitList = [...list];
+    for (var i = 0; i < waitList.length; i++) {
+      if (waitList[i].id == id) {
+        waitList[i].waiting = true;
+        break;
+      }
+    }
 
+    axios
+      .get(`https://j-mena-check-server.onrender.com/update/${id}`, {})
+      .then((response) => {
+        const newList = response.data;
 
+        for (var i = 0; i < newList.length; i++) {
+          newList[i].waiting = false;
+        }
+
+        updateList(newList);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   return (
     <>
-      <div className="h-[100vh] w-full bg-red-100  font-mono relative text-white">
-        <nav className="h-16 w-full bg-black px-5 flex">
+      <div className="h-[100vh] w-full max-w-lg font-mono relative text-white">
+        <nav className="h-16 w-full bg-purple-500 px-5 flex">
           <div className="h-full w-1/4 flex items-center justify-start">
             <img className="" src={logo} alt="" />
           </div>
@@ -70,19 +93,48 @@ export default function App() {
               }}
             />
           </div>
+
           <div className="flex flex-col gap-5">
-            {list.map((student, index) => (
-              <div className="bg-blue-200 w-full flex font-xl rounded-md text-black">
+            <div className="w-full flex gap-2 font-xl rounded-md text-white text-sm font-bold">
+              <div className={`w-1/6 flex items-center justify-start`}>
+                Checked
+              </div>
+              <div className="w-2/3 h-16  flex justify-center items-center ">
+                name
+              </div>
+              <div className={`w-1/6 h-16 flex justify-center items-center`}>
+                Zone
+              </div>
+            </div>
+
+            {filtered.map((student, index) => (
+              <div className="w-full flex gap-2 font-xl rounded-md text-black">
                 <div
                   onClick={() => handleCheckboxChange(student.id)}
-                  className="w-1/6 flex items-center justify-center px-5"
+                  className={`w-1/6 flex items-center justify-center px-5 ${
+                    student.checked ? "bg-green-400" : "bg-red-400"
+                  } rounded-md`}
                 >
-                  {student.checked ? <CheckIcon /> : <XMarkIcon />}
+                  {student.waiting ? (
+                    <ArrowPathIcon className="animate-spin" />
+                  ) : student.checked ? (
+                    <CheckIcon />
+                  ) : (
+                    <XMarkIcon />
+                  )}
                 </div>
-                <div className="w-2/3 h-16 bg-red-200 rounded-md flex justify-center items-center text-xl">
+                <div className="w-2/3 h-16 bg-orange-200 rounded-md flex justify-center items-center text-xl">
                   {student.name}
                 </div>
-                <div className="w-1/6 h-16 bg-red-500 rounded-md flex justify-center items-center text-2xl">
+                <div
+                  className={`w-1/6 h-16 ${
+                    student.zone == 1
+                      ? "bg-white"
+                      : student.zone == 2
+                      ? "bg-blue-400"
+                      : "bg-yellow-400"
+                  } rounded-md flex justify-center items-center text-2xl`}
+                >
                   {student.zone}
                 </div>
               </div>
