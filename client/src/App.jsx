@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import logo from "../assets/logo-with-title.svg";
 import { CheckIcon, XMarkIcon, ArrowPathIcon } from "@heroicons/react/24/solid";
-import io from "socket.io-client";
 
 export default function App() {
   const [value, updateValue] = useState("");
@@ -22,7 +21,7 @@ export default function App() {
 
   const getList = () => {
     axios
-      .get(`https://j-mena-check-server.onrender.com/list`, {})
+      .get(`${import.meta.env.VITE_SERVER_URL}/list`, {})
       .then((response) => {
         const sortedList = response.data.sort((a, b) => a.zone - b.zone);
         updateList(sortedList);
@@ -49,7 +48,7 @@ export default function App() {
     }
 
     axios
-      .get(`https://j-mena-check-server.onrender.com/update/${id}`, {})
+      .get(`${import.meta.env.VITE_SERVER_URL}/update/${id}`, {})
       .then((response) => {
         const newList = response.data;
 
@@ -96,13 +95,13 @@ export default function App() {
 
           <div className="flex flex-col gap-5">
             <div className="w-full flex gap-2 font-xl rounded-md text-white text-sm font-bold">
-              <div className={`w-1/6 flex items-center justify-start`}>
+              <div className={`w-1/6 h-12 flex items-center justify-center`}>
                 Checked
               </div>
-              <div className="w-2/3 h-16  flex justify-center items-center ">
+              <div className="w-2/3 h-12 flex justify-center items-center ">
                 name
               </div>
-              <div className={`w-1/6 h-16 flex justify-center items-center`}>
+              <div className={`w-1/6 h-12 flex justify-center items-center`}>
                 Zone
               </div>
             </div>

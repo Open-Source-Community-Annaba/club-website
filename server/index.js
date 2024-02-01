@@ -5,24 +5,23 @@ const cron = require("node-cron");
 const { backupData } = require("./backup");
 const fs = require("fs");
 
+dotenv.config();
 
 const app = express();
 
-const allowedOrigins = ["https://j-mena-check.netlify.app/"];
+console.log(process.env.FRONTEND)
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    }
-  },
-};
+app.use(
+  cors({
+    origin: process.env.FRONTEND,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 
-app.use(cors(corsOptions));
 
 
 const port = process.env.PORT || 8000;
-
 let list = [];
 
 fs.readFile("./backup/backup.json", "utf8", (err, data) => {
@@ -33,17 +32,6 @@ fs.readFile("./backup/backup.json", "utf8", (err, data) => {
     list = retrievedList;
   }
 });
-
-if (list == []) {
-  fs.readFile("./backup/cleanBackup.json", "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading backup file:", err);
-    } else {
-      const retrievedList = JSON.parse(data);
-      list = retrievedList;
-    }
-  });
-}
 
 const updateList = (id) => {
   const updatedList = [...list];
@@ -61,9 +49,6 @@ const updateList = (id) => {
   list = updatedList;
 };
 
-app.use(cors());
-dotenv.config();
-
 app.get("/list", (req, res) => {
   res.json(list);
 });
@@ -76,6 +61,16 @@ app.get("/update/:id", (req, res) => {
 
 cron.schedule("*/1 * * * *", () => {
   backupData(list, "./backup/backup.json");
+  if (list == []) {
+    fs.readFile("./backup/cleanBackup.json", "utf8", (err, data) => {
+      if (err) {
+        console.error("Error reading backup file:", err);
+      } else {
+        const retrievedList = JSON.parse(data);
+        list = retrievedList;
+      }
+    });
+  }
 });
 
 app.listen(port, () => {
