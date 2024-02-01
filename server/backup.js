@@ -7,6 +7,9 @@ function backupData(data, filePath) {
     if (err) {
       console.error('Error writing backup file:', err);
     }
+    else{
+      console.log('backup successful')
+    }
   });
 }
 

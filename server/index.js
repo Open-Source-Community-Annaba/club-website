@@ -33,7 +33,7 @@ fs.readFile("./backup/backup.json", "utf8", (err, data) => {
   }
 });
 
-const updateList = (id) => {
+const updateList = (id,name) => {
   const updatedList = [...list];
   for (var i = 0; i < updatedList.length; i++) {
     if (updatedList[i].id == id) {
@@ -41,7 +41,7 @@ const updateList = (id) => {
       console.log(
         updatedList[i].name +
           " was set to " +
-          (updatedList[i].checked ? "present" : "not present")
+          (updatedList[i].checked ? "present by "+ name : "absent by "+ name)
       );
       break;
     }
@@ -53,9 +53,10 @@ app.get("/list", (req, res) => {
   res.json(list);
 });
 
-app.get("/update/:id", (req, res) => {
+app.post("/update/:id", (req, res) => {
   const id = req.params.id;
-  updateList(id);
+  const name = req.query.name;
+  updateList(id,name);
   res.json(list);
 });
 
